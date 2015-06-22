@@ -1,0 +1,59 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>seed-element Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../seed-element.html">
+  </head>
+  <body>
+
+
+
+    <template id="template" is="dom-bind">
+      <seed-element id="seed" name="{{name}}"></seed-element>
+      <div>
+        <h1>data-bound to element</h1>
+        <span>[[name]]</span>
+      </div>
+
+      <div>
+        <h1>data-bound to constructor</h1>
+        <span>{{instance.name}}</span>
+      </div>
+
+      <button on-click="flipIt">Flip to Bill</button>
+
+      <p>
+        Note that when pressing the button, the "doIt" method is called on both
+        seed elements but the data bound to the constructor is not updated.
+      </p>
+    </template>
+
+    <script>
+      var tmpl = document.querySelector('#template');
+
+      // create with constructor
+      var seed = new Seed();
+      tmpl.instance = seed;
+
+      tmpl.flipIt = function() {
+        this.$.seed.doIt();
+        seed.doIt();
+      }
+
+
+    </script>
+
+  </body>
+</html>
