@@ -14,46 +14,134 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>seed-element Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../seed-element.html">
+    <link href="../../polymer/polymer.html" rel="import">
   </head>
   <body>
 
 
-
-    <template id="template" is="dom-bind">
-      <seed-element id="seed" name="{{name}}"></seed-element>
-      <div>
-        <h1>data-bound to element</h1>
-        <span>[[name]]</span>
-      </div>
-
-      <div>
-        <h1>data-bound to constructor</h1>
-        <span>{{instance.name}}</span>
-      </div>
-
-      <button on-click="flipIt">Flip to Bill</button>
-
-      <p>
-        Note that when pressing the button, the "doIt" method is called on both
-        seed elements but the data bound to the constructor is not updated.
-      </p>
-    </template>
-
     <script>
-      var tmpl = document.querySelector('#template');
+       window.Light = Polymer({
+        is: 'xh-model-light',
+        properties: {
+          name: {
+            notify: true,
+            type: String,
+            value: 'FOO'
+          }
+        },
 
-      // create with constructor
-      var seed = new Seed();
-      tmpl.instance = seed;
+        setName: function() {
+          var index = x.data.indexOf(this);
+          x.set('data.' + index + '.name', 'Boo');
+          // this.collection.set('data.' + index + '.name', 'Boo')
+        },
 
-      tmpl.flipIt = function() {
-        this.$.seed.doIt();
-        seed.doIt();
-      }
+        notify: function(keys) {
+          var obj = {};
+          keys.forEach(function(key) {
+            obj[key] = this[key];
+          }, this);
+          this.fire('seed-updated', obj);
+        },
 
-
+        factoryImpl: function(params) {
+          this.name = 'FOO';
+          this.collection = params.me;
+        }
+      });
     </script>
 
+
+
+      <script>
+        var DataStore = Polymer({
+          is: 'data-store',
+          properties: {
+            data: {
+              notify: true,
+              type: Object,
+              value: [
+                {name: 'a'},
+                {name: 'b'},
+                {name: 'c'}
+              ]
+            }
+          }
+
+        });
+      </script>
+
+    <script>
+    var x = new DataStore();
+      Polymer({
+        is: 'xh-api-device',
+        properties: {
+          data: {
+            type: Array,
+            notify: true
+          },
+          _share: {
+            value: x
+          }
+        },
+        observers: [
+          'dataChanged(data.*)'
+        ],
+        ready: function() {
+          this.data = this._share.data;
+          this.listen(this._share, 'data-changed', 'sharedDataChanged');
+        },
+
+        dataChanged: function(info) {
+          this._share.fire('data-changed', info, {bubbles: false});
+        },
+        sharedDataChanged: function(e) {
+          this.fire(e.type, e.detail, {bubbles: false});
+        },
+        add: function(name) {
+          // this.push('data', {name: name});
+          this.push('data', new Light());
+        }
+      });
+    </script>
+
+
+    <dom-module id="demo-test">
+      <template>
+        <xh-api-device id="collection" data="{{data}}"></xh-api-device>
+        <xh-api-device data="{{data2}}"></xh-api-device>
+
+        <h2>One</h2>
+        <template is="dom-repeat" items="{{data}}">
+          <div>name: <span>{{item.name}}</span></div>
+        </template>
+
+        <h2>Two</h2>
+        <template is="dom-repeat" items="{{data2}}">
+          <div>name: <span>{{item.name}}</span></div>
+        </template>
+
+        <h2>Blah</h2>
+
+        <div>{{data.0.name}}</div>
+        <div>{{data.1.name}}</div>
+        <div>{{data.2.name}}</div>
+        <div>{{data.3.name}}</div>
+
+        <button on-click="populate">Populate</button>
+      </template>
+    </dom-module>
+
+    <script>
+      Polymer({
+        is: 'demo-test',
+
+        populate: function() {
+          this.$.collection.add(Math.random() * 100);
+        }
+      });
+    </script>
+
+    <demo-test></demo-test>
   </body>
 </html>

@@ -1,0 +1,207 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>seed-element Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link href="../../polymer/polymer.html" rel="import">
+    <!-- <link rel="import" href="../seed-element.html">
+    <link rel="import" href="../seed-collection.html"> -->
+  </head>
+  <body>
+
+
+    <script>
+       window.Light = Polymer({
+        is: 'xh-model-light',
+        properties: {
+          name: {
+            notify: true,
+            type: String,
+            value: 'FOO'
+          }
+        },
+
+        setName: function() {
+          this.name = 'banana';
+          this.id = '1234';
+
+          this.notify(['name', 'id'])
+        },
+
+        notify: function(keys) {
+          var obj = {};
+          keys.forEach(function(key) {
+            obj[key] = this[key];
+          }, this);
+          this.fire('seed-updated', obj);
+        },
+
+        factoryImpl: function(params) {
+          this.name = 'FOO';
+        }
+      });
+    </script>
+
+    <script>
+      var data = [];
+      var instances = [];
+
+      Polymer({
+        is: 'xh-api-device',
+        properties: {
+          data: {
+            notify: true,
+            type: Array,
+            value: function() {
+              return data;
+            }
+          }
+        },
+
+        populate: function() {
+          // data.push(new Light());
+          //
+          // this.data = data;
+          //
+          // instances.forEach(function(instance) {
+          //   console.log(data);
+          //   instance.notifyPath('data', data);
+          // });
+          // this.push('data', new Light());
+
+        },
+
+        attached: function() {
+          instances.push(this);
+        },
+
+        ready: function() {
+          this.data = data;
+          this.push('data', new Light());
+          // element.addEventListener('name-changed', function(e) {
+          //   console.log(e);
+          //   this.notifyPath('data.0.name', e.detail.value);
+          // }.bind(this));
+
+          // element.addEventListener('seed-updated', function(e) {
+          //   var index = this.data.indexOf(element);
+          //   var props = e.detail;
+          //   var keys = Object.keys(props); //['name', 'id']
+          //
+          //   keys.forEach(function(key){
+          //     this.notifyPath('data.'+index+'.'+key,  props[key]);
+          //   }, this);
+          // }.bind(this));
+
+          // this.data = [element];
+          console.log(this.data);
+        }
+      });
+    </script>
+
+
+    <dom-module id="demo-test">
+      <template>
+        <xh-api-device id="collection" data="{{data}}"></xh-api-device>
+        <xh-api-device data="{{data2}}"></xh-api-device>
+
+        <h2>One</h2>
+        <template is="dom-repeat" items="{{data}}">
+          <div>name: <span>{{item.name}}</span></div>
+        </template>
+
+        <h2>Two</h2>
+        <template is="dom-repeat" items="{{data2}}">
+          <div>name: <span>{{item.name}}</span></div>
+        </template>
+
+        <h2>Blah</h2>
+
+
+        <div>{{data.0.name}}</div>
+        <div>{{data.1.name}}</div>
+
+        <button on-click="populate">Populate</button>
+      </template>
+    </dom-module>
+
+    <script>
+      Polymer({
+        is: 'demo-test',
+
+        populate: function() {
+          this.$.collection.populate();
+        }
+      });
+    </script>
+
+    <demo-test></demo-test>
+
+
+
+    <!-- <template id="template" is="dom-bind">
+      <xh-api-device id="collection" data="{{data}}"></xh-api-device>
+      <xh-api-device data="{{data2}}"></xh-api-device>
+
+      <p>Note that setting a name property on seed-element does not properly reflect data binding</p>
+
+      <template is="dom-repeat" items="{{data}}">
+        name: <span>{{item.name}}</span>
+      </template>
+
+      <template is="dom-repeat" items="{{data2}}">
+        name: <span>{{item.name}}</span>
+      </template>
+
+      <h3>Simple Object</h3>
+      <p>{{data.0.name}}</p>
+
+      <h3>Simple Element</h3>
+      <p>{{data.1.name}}</p>
+
+      <h3>Custom Element w/ this.set</h3>
+      <p>{{data.2.name}}</p>
+
+      <h3>Custom Element w/ internal name setting</h3>
+      <p>{{data.3.name}}</p>
+
+      <h3>Constructor</h3>
+      <p>{{data.0.name}}</p>
+      <p>{{data.0.id}}</p>
+      <p>{{data.length}}</p>
+
+
+      <p>{{data2.0.name}}</p>
+      <p>{{data2.0.id}}</p>
+
+      <button on-click="booIt">Boo it!</button>
+      <button on-click="populate">Populate</button>
+    </template> -->
+
+
+
+    <script>
+      // var tmpl = document.querySelector('#template');
+      //
+      // tmpl.booIt = function() {
+      //   this.$.collection.data[0].setName();
+      // };
+      //
+      // tmpl.populate = function() {
+      //   this.$.collection.populate();
+      // };
+    </script>
+
+  </body>
+</html>
